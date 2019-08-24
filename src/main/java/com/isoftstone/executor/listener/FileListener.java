@@ -29,7 +29,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
     public void onFileCreate(File file) {
         logger.info("[新建]:" + file.getAbsolutePath());
         try {
-            ArrayList<String> scanFiles = scanFilesWithRecursion(file.getAbsolutePath().substring(0, file.getAbsolutePath().lastIndexOf("\\")));
+            ArrayList<String> scanFiles = scanFilesWithRecursion(file.getParent());
             asyncService.doTask(scanFiles);
         } catch (FileNotFoundException e) {
             logger.error(e.getMessage(), e);
