@@ -1,4 +1,4 @@
-package com.isoftstone.executor.config;
+package com.isoftstone.executor.pool;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,14 +36,12 @@ public class AsyncTaskExecutePool implements AsyncConfigurer {
         executor.setKeepAliveSeconds(config.getKeepAliveSeconds());
         //线程名字前缀
         executor.setThreadNamePrefix("MyExecutor-");
-
         // setRejectedExecutionHandler：当pool已经达到max size的时候，如何处理新任务
         // CallerRunsPolicy：不在新线程中执行任务，而是由调用者所在的线程来执行
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();
         return executor;
     }
-
 
     /**
      *  异步任务中异常处理

@@ -1,4 +1,4 @@
-package com.isoftstone.executor.config;
+package com.isoftstone.executor.pool;
 
 
 import org.springframework.boot.context.properties.ConfigurationProperties;

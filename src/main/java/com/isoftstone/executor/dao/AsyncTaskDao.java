@@ -1,9 +1,9 @@
-package com.isoftstone.executor.service;
+package com.isoftstone.executor.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,11 +12,11 @@ import javax.transaction.Transactional;
 /**
  * @Auther: likui
  * @Date: 2019/8/6 23:34
- * @Description:
+ * @Description: service处理数据入库
  */
-@Service
+@Repository
 @Transactional
-public class AsyncTaskService {
+public class AsyncTaskDao {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -24,9 +24,8 @@ public class AsyncTaskService {
     private EntityManager entityManager;
 
     @Async
-    public void doTask(int i) throws Exception{
-        logger.info("Task-Native"+i+" started.");
-        entityManager.createNativeQuery("load data infile 'E:\\data.csv' replace into table user_info fields terminated by '###' enclosed by '\n'").executeUpdate();
+    public void doTask(String scanFile) throws Exception{
+        logger.info("Task-Native"+ scanFile +" started.");
+        entityManager.createNativeQuery("load data infile '"+ scanFile +"' replace into table user_info fields terminated by '###' enclosed by '\n'").executeUpdate();
     }
-
 }
