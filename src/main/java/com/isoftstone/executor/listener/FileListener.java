@@ -79,6 +79,9 @@ public class FileListener extends FileAlterationListenerAdaptor {
             File [] fileList = directory.listFiles();
             if(null != fileList) {
                 for (File aFileList : fileList) {
+                    if(!aFileList.getName().contains(".csv")){
+                        continue;
+                    }
                     /*如果当前是文件夹，进入递归扫描文件夹**/
                     if (aFileList.isDirectory()) {
                         /*递归扫描下面的文件夹*/

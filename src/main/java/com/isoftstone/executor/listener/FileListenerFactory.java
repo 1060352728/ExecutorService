@@ -31,7 +31,7 @@ public class FileListenerFactory {
         monitorDir = "E:\\datafile\\" + monitorDir;
         // 创建过滤器
         IOFileFilter directories = FileFilterUtils.and(FileFilterUtils.directoryFileFilter(), HiddenFileFilter.VISIBLE);
-        IOFileFilter files = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.suffixFileFilter(".csv"));
+        IOFileFilter files = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.suffixFileFilter(".end"));
         IOFileFilter filter = FileFilterUtils.or(directories, files);
         // 装配过滤器
         FileAlterationObserver observer = new FileAlterationObserver(new File(monitorDir), filter);
