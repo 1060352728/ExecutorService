@@ -31,8 +31,4 @@ public class FileListenerController {
         }
     }
 
-    @PostMapping("/close")
-    public void close(String taskId) throws Exception {
-
-    }
 }

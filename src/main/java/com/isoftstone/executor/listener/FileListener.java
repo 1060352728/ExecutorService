@@ -2,6 +2,7 @@ package com.isoftstone.executor.listener;
 
 import com.isoftstone.executor.service.AsyncService;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,9 @@ public class FileListener extends FileAlterationListenerAdaptor {
         logger.info("[新建]:" + file.getAbsolutePath());
         try {
             ArrayList<String> scanFiles = scanFilesWithRecursion(file.getParent());
-            asyncService.doTask(scanFiles);
+            if(null != scanFiles){
+                asyncService.doTask(scanFiles);
+            }
         } catch (FileNotFoundException e) {
             logger.error(e.getMessage(), e);
         }
@@ -46,6 +49,16 @@ public class FileListener extends FileAlterationListenerAdaptor {
      */
     public void onFileDelete(File file) {
         logger.info("[删除]:" + file.getAbsolutePath());
+        try {
+            if(file.getName().endsWith(".end")){
+                String path = file.getParent();
+                if(StringUtils.isNoneBlank(path) && path.contains("\\") && (path.lastIndexOf("\\") + 1) < path.length()){
+                    asyncService.doClose(file.getParent().substring(file.getParent().lastIndexOf("\\") + 1));
+                }
+            }
+        } catch (Exception e) {
+            logger.error("删除对" + file.getParent().lastIndexOf("\\") + "文件夹的监控失败", e);
+        }
     }
     /**
      * 目录创建
@@ -70,6 +83,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
      * 递归扫描指定文件夹下面的指定文件
      */
     public static ArrayList<String> scanFilesWithRecursion(String folderPath) throws FileNotFoundException {
+        boolean flag = false;
         ArrayList<String> scanFiles = new ArrayList<>();
         File directory = new File(folderPath);
         if(!directory.isDirectory()){
@@ -79,8 +93,8 @@ public class FileListener extends FileAlterationListenerAdaptor {
             File [] fileList = directory.listFiles();
             if(null != fileList) {
                 for (File aFileList : fileList) {
-                    if(!aFileList.getName().contains(".csv")){
-                        continue;
+                    if(aFileList.getName().endsWith(".end")){
+                        flag = true;
                     }
                     /*如果当前是文件夹，进入递归扫描文件夹**/
                     if (aFileList.isDirectory()) {
@@ -94,6 +108,9 @@ public class FileListener extends FileAlterationListenerAdaptor {
                 }
             }
         }
-        return scanFiles;
+        if(flag){
+            return scanFiles;
+        }
+        return null;
     }
 }

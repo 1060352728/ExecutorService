@@ -1,11 +1,15 @@
 package com.isoftstone.executor.service;
 
 import com.isoftstone.executor.dao.AsyncTaskDao;
+import com.isoftstone.executor.listener.FileListenerFactory;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -21,15 +25,40 @@ public class AsyncService {
     @Autowired
     private AsyncTaskDao asyncTaskDao;
 
+    @Autowired
+    private FileListenerFactory fileListenerFactory;
+
     public void doTask(ArrayList<String> scanFiles) {
-        logger.info("start----------------------"+System.currentTimeMillis());
         try {
             for (String scanFile : scanFiles) {
-                asyncTaskDao.doTask(scanFile);
+                File file = new File(scanFile);
+                if(file.getName().endsWith(".csv")) {
+                    asyncTaskDao.doTask(scanFile);
+                } else {
+                    boolean flag = file.delete();
+                    if(flag){
+                        logger.info("删除文件" + file.getName() + "成功");
+                    } else {
+                        logger.error("删除文件" + file.getName() + "失败", new Throwable("文件" + file.getName() + "不存在"));
+                    }
+                }
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        logger.info("end----------------------"+System.currentTimeMillis());
+    }
+
+    public void doClose(String taskId) throws Exception {
+        try{
+            FileAlterationMonitor fileAlterationMonitor = fileListenerFactory.getMonitor(taskId);
+            Iterable<FileAlterationObserver> files = fileAlterationMonitor.getObservers();
+            for (FileAlterationObserver fileAlterationObserver : files) {
+                fileAlterationMonitor.removeObserver(fileAlterationObserver);
+            }
+            fileAlterationMonitor.stop();
+            logger.info("删除对" + taskId + "文件夹的监控成功");
+        } catch (Exception e) {
+            logger.error("删除对" + taskId + "文件夹的监控失败", e);
+        }
     }
 }
