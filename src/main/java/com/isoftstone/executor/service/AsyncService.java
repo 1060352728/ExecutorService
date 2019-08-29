@@ -4,6 +4,7 @@ import com.isoftstone.executor.dao.AsyncTaskDao;
 import com.isoftstone.executor.listener.FileListenerFactory;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +51,16 @@ public class AsyncService {
 
     public void doClose(String taskId) throws Exception {
         try{
-            FileAlterationMonitor fileAlterationMonitor = fileListenerFactory.getMonitor(taskId);
+            FileAlterationMonitor fileAlterationMonitor = fileListenerFactory.closeMonitor();
             Iterable<FileAlterationObserver> files = fileAlterationMonitor.getObservers();
             for (FileAlterationObserver fileAlterationObserver : files) {
-                fileAlterationMonitor.removeObserver(fileAlterationObserver);
+                String path = fileAlterationObserver.getDirectory().getAbsolutePath();
+                if(StringUtils.isNoneBlank(path) && path.contains("\\") && (path.lastIndexOf("\\") + 1) < path.length()){
+                    if(taskId.equals(path.substring(path.lastIndexOf("\\") + 1))) {
+                        fileAlterationMonitor.removeObserver(fileAlterationObserver);
+                    }
+                }
             }
-            fileAlterationMonitor.stop();
             logger.info("删除对" + taskId + "文件夹的监控成功");
         } catch (Exception e) {
             logger.error("删除对" + taskId + "文件夹的监控失败", e);

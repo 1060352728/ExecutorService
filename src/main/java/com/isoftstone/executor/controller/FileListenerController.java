@@ -23,9 +23,10 @@ public class FileListenerController {
 
     @PostMapping("/start")
     public void start(String taskId) throws Exception {
-        FileAlterationMonitor fileAlterationMonitor = fileListenerFactory.getMonitor(taskId);
         try {
-            fileAlterationMonitor.start();
+            // 1.创建相应的文件夹
+            // 2.添加监听路径及监听器
+            fileListenerFactory.getMonitor(taskId);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
